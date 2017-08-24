@@ -64,12 +64,15 @@ public class ConditionalHidePropertyDrawer : PropertyDrawer
 		//Get the full relative property path of the sourcefield so we can have nested hiding
 		string propertyPath = property.propertyPath; //returns the property path of the property we want to apply the attribute to
 		string conditionPath = propertyPath.Replace(property.name, condHAtt.ConditionalSourceField); //changes the path to the conditionalsource property path
+
 		SerializedProperty sourcePropertyValue = property.serializedObject.FindProperty(conditionPath);
 		//SerializedProperty sourcePropertyValue = property.serializedObject.FindProperty(condHAtt.ConditionalSourceField);
+		string compareValue = condHAtt.ComparedConditionalField;
 
 		if (sourcePropertyValue != null)
 		{
-			enabled = CheckPropertyType(sourcePropertyValue);
+			enabled = condHAtt.ReverseConditional ? !CheckPropertyType(sourcePropertyValue, compareValue) : CheckPropertyType(sourcePropertyValue, compareValue);
+			//enabled = CheckPropertyType(sourcePropertyValue, compareValue);
 		}
 		else
 		{
@@ -79,14 +82,20 @@ public class ConditionalHidePropertyDrawer : PropertyDrawer
 		return enabled;
 	}
 
-	private bool CheckPropertyType(SerializedProperty sourcePropertyValue)
+	private bool CheckPropertyType(SerializedProperty sourcePropertyValue, string compareValue = "")
 	{
+		//Debug.Log("What is the ToString? " + sourcePropertyValue.stringValue.ToString() + "\n");
+
 		switch (sourcePropertyValue.propertyType)
 		{
 			case SerializedPropertyType.Boolean:
 				return sourcePropertyValue.boolValue;
 			case SerializedPropertyType.ObjectReference:
 				return sourcePropertyValue.objectReferenceValue != null;
+			case SerializedPropertyType.Enum:
+				{
+					return sourcePropertyValue.enumNames[sourcePropertyValue.enumValueIndex] == compareValue;
+				}
 			default:
 				Debug.LogError("Data type of the property used for conditional hiding [" + sourcePropertyValue.propertyType + "] is currently not supported");
 				return true;

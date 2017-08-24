@@ -1,0 +1,40 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace NullSpace.SDK.Demos
+{
+	public class HeatHaptics : MonoBehaviour
+	{
+
+		public float maxRadius;
+		public float minRadius;
+		public AnimationCurve MyCurve;
+
+		[Header("Variation", order = 5)]
+		[Range(0.0f, 1)]
+		public float maxVariation = 3;
+
+		public float EvaluateCurve(Vector3 point)
+		{
+			var dist = Vector3.Distance(point, transform.position);
+
+			//Dist = 10, MaxRadius = 3, MinRadius = 1 -> Result is 0.
+			//Dist = 5, MaxRadius = 8, MinRadius = 0 -> Result is 5/8.
+			//Dist = 4, MaxRadius = 7, MinRadius = 1.25 -> Result is (4-1.25) / 7.
+
+			float val = Mathf.Clamp((dist - minRadius) / maxRadius, 0.0f, 1.0f);
+
+			return MyCurve.Evaluate(val);
+		}
+
+		private float GetStrengthVariation()
+		{
+			if (maxVariation == 0.0f)
+			{
+				return 0;
+			}
+			return Random.Range(-maxVariation, maxVariation);
+		}
+	}
+}

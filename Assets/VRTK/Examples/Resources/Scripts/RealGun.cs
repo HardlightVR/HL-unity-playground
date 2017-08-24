@@ -1,13 +1,16 @@
 ﻿namespace VRTK.Examples
 {
     using UnityEngine;
+	using UnityEngine.Events;
 
     public class RealGun : VRTK_InteractableObject
     {
         public float bulletSpeed = 200f;
         public float bulletLife = 5f;
 
-        private GameObject bullet;
+		public UnityEvent HapticsOnUse;
+
+		private GameObject bullet;
         private GameObject trigger;
         private RealGun_Slide slide;
         private RealGun_SafetySwitch safetySwitch;
@@ -141,6 +144,7 @@
 
         private void FireBullet()
         {
+			HapticsOnUse.Invoke();
             GameObject bulletClone = Instantiate(bullet, bullet.transform.position, bullet.transform.rotation) as GameObject;
             bulletClone.SetActive(true);
             Rigidbody rb = bulletClone.GetComponent<Rigidbody>();
