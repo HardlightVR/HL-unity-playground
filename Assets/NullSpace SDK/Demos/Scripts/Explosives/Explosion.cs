@@ -79,13 +79,16 @@ namespace NullSpace.SDK.Demos
 
 		[ConditionalHide("CreateAudioSFX", true)]
 		public float sfxVolume = .5f;
-		
+
 		[Header("Explosion Audio")]
 		public bool HapticsWhenExplosionHit = true;
 
 		[ConditionalHide("HapticsWhenExplosionHit", true)]
 		public string hapticSequenceName = "Haptics/pain_short";
 		private HapticSequence explosionSequence = new HapticSequence();
+
+		[Header("Force Kinematic Rigidbody")]
+		public bool RemoveKinematicAttribute = false;
 
 		public class ExplosionInfo
 		{
@@ -199,23 +202,27 @@ namespace NullSpace.SDK.Demos
 
 					if (affected && BlastRadius > 0)
 					{
-						float range = Vector3.Distance(blastPoint, Blast[i].gameObject.transform.position);
-
-						//A multiplier for objects being knocked around
-						float damage = Mathf.Clamp(1 - ((range - affected.MinSphereRadius) / BlastRadius), .25f, 1);
-						//Debug.Log("Radius [" + BlastRadius + "]  Dist [" + range + "] bonusRadius [" + affected.MinSphereRadius + "]\n");
-
-						Vector3 startPoint = (alternateExplosionPoint == null) ? transform.position : alternateExplosionPoint.transform.position;
-
-						ExplosionInfo info = new ExplosionInfo(this, affected, startPoint, new Vector3(1, 1.25f, 1) * damage * BlastForce / 4);
-						info.ClampBlastDamage = ClampBlastDamage;
-						info.explosionSequence = explosionSequence;
-						//Debug.Log(info.ToString() + "\n");
-						success = affected.RecieveExplosion(info);
-
-						if (!success)
+						//Debug.Log("Blast Area: " + Blast.Length + "\n" + affected.gameObject.name + "  " + name, this);
+						if (affected.gameObject != gameObject)
 						{
-							Debug.Log("Failed to apply explosion\n" + info.ToString());
+							float range = Vector3.Distance(blastPoint, Blast[i].gameObject.transform.position);
+
+							//A multiplier for objects being knocked around
+							float damage = Mathf.Clamp(1 - ((range - affected.MinSphereRadius) / BlastRadius), .25f, 1);
+							//Debug.Log("Radius [" + BlastRadius + "]  Dist [" + range + "] bonusRadius [" + affected.MinSphereRadius + "]\n");
+
+							Vector3 startPoint = (alternateExplosionPoint == null) ? transform.position : alternateExplosionPoint.transform.position;
+
+							ExplosionInfo info = new ExplosionInfo(this, affected, startPoint, new Vector3(1, 1.25f, 1) * damage * BlastForce / 4);
+							info.ClampBlastDamage = ClampBlastDamage;
+							info.explosionSequence = explosionSequence;
+							//Debug.Log(info.ToString() + "\n");
+							success = affected.RecieveExplosion(info);
+
+							if (!success)
+							{
+								Debug.Log("Failed to apply explosion\n" + info.ToString() + "\n");
+							}
 						}
 					}
 				}
@@ -290,12 +297,7 @@ namespace NullSpace.SDK.Demos
 			Exploding = true;
 			if (TimesExploded == 0)
 			{
-				if (source != null)
-				{
-					source.volume = .75f;
-					source.pitch = UnityEngine.Random.Range(.9f, 1.1f);
-					source.Play();
-				}
+				PlayAudioSource();
 
 				TimesExploded++;
 
@@ -306,15 +308,7 @@ namespace NullSpace.SDK.Demos
 
 				yield return new WaitForSeconds(explosionVisualDelay);
 
-				if (TriggerOwnDestroyable)
-				{
-					TryFindOwnDestroyable();
-
-					if (DetonateSelf != null)
-					{
-						DetonateSelf.DestroyIt(new Destroyable.DestructionInfo(DetonateSelf, Destroyable.DestroyedBy.ForceDestroy, Vector3.up));
-					}
-				}
+				TryTriggerOwnDestroyable();
 
 				//Execute the explosion code?
 				if (alternateExplosionPoint != null)
@@ -326,6 +320,29 @@ namespace NullSpace.SDK.Demos
 					ProcessExplosion(transform.position);
 				}
 				StartCoroutine(EndExplosion());
+			}
+		}
+
+		private void PlayAudioSource()
+		{
+			if (source != null)
+			{
+				source.volume = .75f;
+				source.pitch = UnityEngine.Random.Range(.9f, 1.1f);
+				source.Play();
+			}
+		}
+
+		private void TryTriggerOwnDestroyable()
+		{
+			if (TriggerOwnDestroyable)
+			{
+				TryFindOwnDestroyable();
+
+				if (DetonateSelf != null)
+				{
+					DetonateSelf.DestroyIt(new Destroyable.DestructionInfo(DetonateSelf, Destroyable.DestroyedBy.ForceDestroy, Vector3.up));
+				}
 			}
 		}
 

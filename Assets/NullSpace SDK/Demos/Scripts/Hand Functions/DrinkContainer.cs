@@ -40,7 +40,6 @@ namespace NullSpace.SDK.Demos
 		public override void Ungrabbed(GameObject previousGrabbingObject)
 		{
 			base.Ungrabbed(previousGrabbingObject);
-			Debug.LogError("Toggle kinematic\n");
 			//ToggleKinematic(false);
 		}
 
@@ -191,7 +190,8 @@ namespace NullSpace.SDK.Demos
 				AreaFlag loc = locs[Random.Range(0, locs.Count)];
 				string file = Random.Range(0, 1.0f) > .8f ? "Haptics/StomachRumbleHeavy" : "Haptics/StomachRumble";
 
-				HapticSequence seq = new HapticSequence(file);
+				HapticSequence seq = new HapticSequence();
+				seq.LoadFromAsset(file);
 				seq.CreateHandle(loc).Play();
 
 				float waitDur = Random.Range(.05f, .15f);

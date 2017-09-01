@@ -10,6 +10,8 @@ namespace NullSpace.SDK
 		[Header("Body Hang Origin")]
 		public GameObject hmd;
 
+		private bool runtimeCreated = false;
+
 		/// <summary>
 		/// [Not currently in use]
 		/// This is stub code for future tracking improvements that allow the body to tilt with the HMD (left/right, forward/backward)
@@ -34,6 +36,12 @@ namespace NullSpace.SDK
 		[Header("How far fwd or back the body is")]
 		[Range(-2, 2)]
 		public float NeckFwdAnchor = 0;
+
+		/// <summary>
+		/// This controls whether this prefab is hidden during play.
+		/// </summary>
+		[Header("Hide the body from player view")]
+		public bool HideBodyMimicFromView = true;
 
 		/// <summary>
 		/// This lets you configure a different position when this box is checked. Useful to simulate human height when your Vive/Oculus/HMD is on your desk.
@@ -289,7 +297,7 @@ namespace NullSpace.SDK
 				mimic.hmd = vrCamera.GetComponent<WatchedByMimic>().WatchingMimic.gameObject;
 				mimic.transform.SetParent(CameraRigMimic.transform);
 			}
-			if (vrCamera != null)
+			if (vrCamera != null && mimic.HideBodyMimicFromView)
 			{
 				vrCamera.HideLayer(hapticObjectLayer);
 			}

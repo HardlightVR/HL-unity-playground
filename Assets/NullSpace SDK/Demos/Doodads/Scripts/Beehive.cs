@@ -184,7 +184,7 @@ namespace NullSpace.SDK.Demos
 				if (stingCounter >= 0)
 				{
 					stingCounter -= Time.deltaTime;
-					if (stingCounter <= 0)
+					if (stingCounter <= 0 && beeCount > 1)
 					{
 						StingPlayer();
 					}

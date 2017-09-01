@@ -6,6 +6,7 @@
 */
 
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace NullSpace.SDK
 {
@@ -29,6 +30,9 @@ namespace NullSpace.SDK
 		[Header("If collider is null, performs a GetComponent", order = 5)]
 		public bool TryFindCollider = false;
 
+		[Header("Size of this location (for searching)", order = 5)]
+		public float LocationSize = .025f;
+
 		public bool LocationActive
 		{
 			get { return MyLocation.LocationActive; }
@@ -40,6 +44,8 @@ namespace NullSpace.SDK
 			get { return MyLocation.Where; }
 			set { MyLocation.Where = value; }
 		}
+
+		public List<Vector3> AdditionalLocalPoints = new List<Vector3>();
 
 		private HapticLocation _myLocation;
 		public HapticLocation MyLocation
@@ -110,6 +116,19 @@ namespace NullSpace.SDK
 				}
 				Debug.Assert(loc != null);
 				_myLocation = loc;
+			}
+		}
+
+		void OnDrawGizmos()
+		{
+			Gizmos.color = Color.black - new Color(0, 0, 0, .2f);
+			Gizmos.DrawSphere(transform.position, .01f);
+			Gizmos.color = Color.cyan - new Color(0, 0, 0, .5f);
+			Gizmos.DrawSphere(transform.position, LocationSize);
+
+			for (int i = 0; i < AdditionalLocalPoints.Count; i++)
+			{
+				Gizmos.DrawSphere(transform.position + transform.rotation *AdditionalLocalPoints[i] , LocationSize);
 			}
 		}
 	}

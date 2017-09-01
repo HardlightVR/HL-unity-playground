@@ -29,18 +29,18 @@ public class ConditionalHideAttribute : PropertyAttribute
 		this.HideInInspector = hideInInspector;
 	}
 
-	public ConditionalHideAttribute(string conditionalSourceField, string targetValue)
+	public ConditionalHideAttribute(string conditionalSourceField, string targetValue, bool hideInInspector = true)
 	{
 		this.ConditionalSourceField = conditionalSourceField;
 		this.ComparedConditionalField = targetValue;
-		this.HideInInspector = false;
+		this.HideInInspector = hideInInspector;
 	}
 
-	public ConditionalHideAttribute(string conditionalSourceField, bool Reverse, string targetValue)
+	public ConditionalHideAttribute(string conditionalSourceField, bool Reverse, string targetValue, bool hideInInspector = true)
 	{
 		this.ConditionalSourceField = conditionalSourceField;
 		this.ComparedConditionalField = targetValue;
 		this.ReverseConditional = Reverse;
-		this.HideInInspector = false;
+		this.HideInInspector = hideInInspector;
 	}
 }

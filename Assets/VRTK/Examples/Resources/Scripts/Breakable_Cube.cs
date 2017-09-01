@@ -28,12 +28,16 @@
                 return collision.collider.GetComponent<Sword>().CollisionForce() * 1.2f;
             }
 
-            if (collision.collider.name.Contains("Arrow"))
-            {
-                return 500f;
-            }
+			if (collision.collider.name.Contains("Arrow"))
+			{
+				return 500f;
+			}
+			if (collision.collider.name.Contains("Bullet"))
+			{
+				return 250f;
+			}
 
-            return 0f;
+			return 0f;
         }
 
         private void ExplodeCube(float force)

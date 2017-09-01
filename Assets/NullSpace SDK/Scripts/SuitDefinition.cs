@@ -167,11 +167,84 @@ namespace NullSpace.SDK
 		}
 
 		#region Location Functions
+		public HardlightCollider[] FindObjectsWithinRangeOfLine(Vector3 start, Vector3 direction, float range, float distance = 100)
+		{
+			List<HardlightCollider> inRangeOfLine = new List<HardlightCollider>();
+
+			Vector3 A, B;
+			A = start;
+			B = start + direction.normalized * distance;
+
+			for (int i = 0; i < SceneReferences.Count; i++)
+			{
+				bool hit = IsHardlightColliderIsInRangeOfLine(SceneReferences[i], range, A, B);
+				if (hit)
+				{
+					inRangeOfLine.Add(SceneReferences[i]);
+				}
+			}
+			return inRangeOfLine.ToArray();
+		}
+
+		private bool IsHardlightColliderIsInRangeOfLine(HardlightCollider hardlightCollider, float range, Vector3 A, Vector3 B)
+		{
+			Vector3 checkedObjectPosition;
+			Vector3 ClosestPoint = Vector3.one * 10000;
+			checkedObjectPosition = hardlightCollider.transform.position;
+			Vector3 AB = B - A;
+			float t = Vector3.Dot(checkedObjectPosition - A, AB) / Vector3.Dot(AB, AB);
+			ClosestPoint = A + t * AB;
+			//Vector3 directLineToPoint;
+
+			float SpherecastSizeAndLocationSize = hardlightCollider.LocationSize + range;
+			bool hit = CheckPointDistance(SpherecastSizeAndLocationSize, checkedObjectPosition, ClosestPoint, t);
+
+			for (int i = 0; i < hardlightCollider.AdditionalLocalPoints.Count; i++)
+			{
+				if (!hit)
+				{
+					checkedObjectPosition = hardlightCollider.transform.position + hardlightCollider.transform.rotation * hardlightCollider.AdditionalLocalPoints[i];
+					hit = CheckPointDistance(SpherecastSizeAndLocationSize, checkedObjectPosition, ClosestPoint, t);
+				}
+			}
+
+			if (hit)
+			{
+				Debug.DrawLine(checkedObjectPosition, ClosestPoint, Color.green);
+			}
+			//else
+			//{
+			//	Debug.DrawLine(ClosestPoint, ClosestPoint - (ClosestPoint - checkedObjectPosition).normalized * range, Color.red);
+			//	Debug.DrawLine(checkedObjectPosition, checkedObjectPosition + (ClosestPoint - checkedObjectPosition).normalized * hardlightCollider.LocationSize, Color.blue);
+			//}
+
+			return hit;
+		}
+
+		private static bool CheckPointDistance(float squaredSize, Vector3 checkedObjectPosition, Vector3 ClosestPoint, float t)
+		{
+			bool betweenPoints = false;
+			Vector3 directLineToPoint = ClosestPoint - checkedObjectPosition;
+			if (directLineToPoint.sqrMagnitude < squaredSize * squaredSize)
+			{
+				betweenPoints = false;
+				if (t > 0 && t < 1f)
+				{
+					betweenPoints = true;
+				}
+
+				if (betweenPoints)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public GameObject GetNearestLocation(Vector3 point, float maxDistance = 5.0f)
 		{
 			GameObject closest = null;
 			float closestDist = 1000;
-			//Vector3 objPos = Vector3.one * float.MaxValue;
 
 			//Look through all the objects. Check which is closest.
 			for (int i = 0; i < SceneReferences.Count; i++)

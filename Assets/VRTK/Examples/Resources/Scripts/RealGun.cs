@@ -8,7 +8,7 @@
         public float bulletSpeed = 200f;
         public float bulletLife = 5f;
 
-		public UnityEvent HapticsOnUse;
+		public NullSpace.SDK.HapticEvent HapticsOnUse;
 
 		private GameObject bullet;
         private GameObject trigger;
@@ -54,7 +54,7 @@
 
         public override void Grabbed(GameObject currentGrabbingObject)
         {
-            base.Grabbed(currentGrabbingObject);
+			base.Grabbed(currentGrabbingObject);
 
             controllerEvents = currentGrabbingObject.GetComponent<VRTK_ControllerEvents>();
             controllerActions = currentGrabbingObject.GetComponent<VRTK_ControllerActions>();
@@ -98,7 +98,7 @@
 
         public override void StartUsing(GameObject currentUsingObject)
         {
-            base.StartUsing(currentUsingObject);
+			base.StartUsing(currentUsingObject);
             if (safetySwitch.safetyOff)
             {
                 slide.Fire();
@@ -143,13 +143,21 @@
         }
 
         private void FireBullet()
-        {
-			HapticsOnUse.Invoke();
-            GameObject bulletClone = Instantiate(bullet, bullet.transform.position, bullet.transform.rotation) as GameObject;
-            bulletClone.SetActive(true);
-            Rigidbody rb = bulletClone.GetComponent<Rigidbody>();
-            rb.AddForce(bullet.transform.forward * bulletSpeed);
-            Destroy(bulletClone, bulletLife);
-        }
-    }
+		{
+			PlayHapticEvents();
+
+			GameObject bulletClone = Instantiate(bullet, bullet.transform.position, bullet.transform.rotation) as GameObject;
+			bulletClone.SetActive(true);
+			Rigidbody rb = bulletClone.GetComponent<Rigidbody>();
+			rb.AddForce(bullet.transform.forward * bulletSpeed);
+			Destroy(bulletClone, bulletLife);
+		}
+
+		private void PlayHapticEvents()
+		{
+			NullSpace.SDK.SideOfHaptic whichSide = VRTK_DeviceFinder.GetControllerHand(GetGrabbingObject()) == SDK_BaseController.ControllerHand.Left ? NullSpace.SDK.SideOfHaptic.Left : NullSpace.SDK.SideOfHaptic.Right;
+			//Debug.Log("Invoking Haptic Event\n" + whichSide.ToString());
+			HapticsOnUse.Invoke(whichSide);
+		}
+	}
 }

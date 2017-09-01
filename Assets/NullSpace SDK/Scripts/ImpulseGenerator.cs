@@ -225,6 +225,11 @@ namespace NullSpace.SDK
 				return WithEffect(sequence).Play();
 			}
 
+			internal object WithAttenuation(object attenuationPercentage)
+			{
+				throw new NotImplementedException();
+			}
+
 			internal Impulse(CreateImpulse process)
 			{
 				this.process = process;

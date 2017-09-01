@@ -338,34 +338,36 @@ namespace NullSpace.SDK
 			return Succeeded;
 		}
 
+		private static HardlightSuit _suit;
+		public static HardlightSuit Suit
+		{
+			get
+			{
+				if (_suit == null)
+				{
+					_suit = FindObjectOfType<HardlightSuit>();
+					if (_suit != null)
+					{
+						_suit.Init();
+						return _suit;
+					}
+				}
+
+				if (VRMimic.ValidInstance() && _suit == null)
+				{
+					Debug.LogError("Attempted to get a reference to HardlightSuit.Suit before calling VRMimic.Initialize()\nMust run VRMimic Initialize first - so you can configure hiding settings.");
+				}
+				return _suit;
+			}
+		}
+
 		/// <summary>
-		/// An easy way to find the current HardlightSuit in the scene (this becomes trickier if you have multiple suits in play at once IE a networking situation)
-		/// It will initialized the VRMimic if it is not yet initialized.
+		/// An easy way to find the current HardlightSuit in the scene. Will be used once multiple suits are in the scene at once (networked play)
 		/// </summary>
 		/// <returns></returns>
 		public static HardlightSuit Find()
 		{
-			HardlightSuit suit = FindObjectOfType<HardlightSuit>();
-			if (suit != null)
-			{
-				suit.Init();
-				return suit;
-			}
-			if (VRMimic.ValidInstance())
-			{
-				suit = FindObjectOfType<HardlightSuit>();
-				if (suit != null)
-				{
-					suit.Init();
-					return suit;
-				}
-			}
-			else
-			{
-				Debug.Log("Attempted to run HardlightSuit.Find() before calling VRMimic.Initialize()\nMust run VRMimic Initialize first - so you can configure hiding settings.");
-			}
-
-			return null;
+			return Suit;
 		}
 
 		/// <summary>
@@ -562,6 +564,30 @@ namespace NullSpace.SDK
 			}
 		}
 		#endregion
+
+		public AreaFlag HapticSphereCastForAreas(Vector3 source, Vector3 direction, float range = .25f, float length = 100)
+		{
+			var hit = Definition.FindObjectsWithinRangeOfLine(source, direction, range, length);
+			return FindAreaFlagFromHardlightCollider(hit);
+		}
+
+		private AreaFlag FindAreaFlagFromHardlightCollider(HardlightCollider[] hit)
+		{
+			AreaFlag hitAreas = AreaFlag.None;
+
+			for (int i = 0; i < hit.Length; i++)
+			{
+				hitAreas = hitAreas.AddArea(hit[i].regionID);
+				ColorHapticLocationInEditor(hit[i].MyLocation);
+			}
+
+			return hitAreas;
+		}
+
+		public HardlightCollider[] HapticSphereCast(Vector3 source, Vector3 direction, float range = .25f, float length = 100)
+		{
+			return Definition.FindObjectsWithinRangeOfLine(source, direction, range, length);
+		}
 
 		#region Finding HapticLocation and Flags
 		/// <summary>

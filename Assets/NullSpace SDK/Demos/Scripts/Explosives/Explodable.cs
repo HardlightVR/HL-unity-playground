@@ -68,6 +68,11 @@ namespace NullSpace.SDK.Demos
 			{
 				if (rb != null)
 				{
+					if (rb.isKinematic && info.source.RemoveKinematicAttribute)
+					{
+						rb.isKinematic = false;
+						rb.useGravity = true;
+					}
 					//Debug.Log("Applying force to " + name + "\n");
 					rb.AddForce(blast, ForceMode.Impulse);
 				}
@@ -77,8 +82,7 @@ namespace NullSpace.SDK.Demos
 				if (info.explosionSequence != null)
 				{
 					var Where = HardlightSuit.Find().FindNearestFlag(info.explosionCenter, 5);
-					Debug.Log(Where.ToString() + "\n", this);
-					HardlightSuit.Find().EmanatingHit(Where, info.explosionSequence, 5);
+					HardlightSuit.Find().EmanatingHit(Where, info.explosionSequence, .25f, 8);
 				}
 			}
 			if (HasFlag(ExplosionResponse.Fireworks))
